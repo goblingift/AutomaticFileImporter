@@ -38,7 +38,8 @@ public class TrayIconRenderer {
     
     private static final String TRAY_ICON_PATH = "/goblin_shadow.png";
 
-    public TrayIconRenderer() {
+    public TrayIconRenderer(Configuration configuration) {
+        this.configuration = configuration;
         initializeTray();
     }
 
