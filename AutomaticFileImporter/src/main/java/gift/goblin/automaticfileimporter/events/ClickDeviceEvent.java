@@ -5,6 +5,7 @@
 package gift.goblin.automaticfileimporter.events;
 
 import gift.goblin.automaticfileimporter.TrayIconRenderer;
+import gift.goblin.automaticfileimporter.io.ExpliciteDirectoryFileVisitor;
 import gift.goblin.automaticfileimporter.io.RecursiveFileVisitor;
 import gift.goblin.automaticfileimporter.model.Configuration;
 import gift.goblin.automaticfileimporter.model.enums.Status;
@@ -37,7 +38,13 @@ public class ClickDeviceEvent implements ActionListener {
 
         trayIconRenderer.setStatus(Status.WORKING);
         try {
-            Files.walkFileTree(Paths.get(devicePath), new RecursiveFileVisitor(configuration));
+            ExpliciteDirectoryFileVisitor directoryFinder = new ExpliciteDirectoryFileVisitor(configuration);
+            Files.walkFileTree(Paths.get(devicePath), directoryFinder);
+            
+            System.out.println("DONE! FOUND DIRECTORIES:");
+            System.out.println(directoryFinder.getFoundDirectories());
+            
+//            Files.walkFileTree(Paths.get(devicePath), new RecursiveFileVisitor(configuration));
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
