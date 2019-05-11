@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gift.goblin.automaticfileimporter.io;
+package gift.goblin.automaticfileimporter.io.filevisitor;
 
 import gift.goblin.automaticfileimporter.model.Configuration;
 import java.io.IOException;
@@ -58,8 +58,6 @@ public class ExpliciteDirectoryFileVisitor extends SimpleFileVisitor<Path> {
         if (pathMatcher.matches(dir)) {
             System.out.println("Explicite directory found- its included in the list of included-dirs: " + folderName);
             foundDirectories.add(dir);
-        } else {
-            System.out.println("Nothing found, continues at: " + dir.getFileName());
         }
 
         return FileVisitResult.CONTINUE;
