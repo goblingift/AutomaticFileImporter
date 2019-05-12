@@ -92,14 +92,20 @@ public class DeviceWatcher implements Runnable {
                             // Start several copy tasks for the found directories
                             for (Path actDirectory : foundDirectories) {
                                 Files.walkFileTree(actDirectory, new CopyDirectoryFileVisitor(actDirectory, configuration.getTargetDirectoryPath()));
+                                System.out.println("Finished scanning explicite directories.");
                             }
                         } else {
                             System.out.println("No explicite directories entered- skip that task.");
                         }
 
-                        // Start the recursive directory crawler
-                        Files.walkFileTree(newDevice.toPath().getRoot(), new RecursiveFileVisitor(configuration));
-
+                        // Start the recursive directory crawler (Only for given filetypes)
+                        Files.walkFileTree(newDevice.toPath().getRoot(), new RecursiveFileVisitor(configuration, true));
+                        System.out.println("Finished recursive directory crawler (Given filetypes)");
+                        
+                        // Start the recursive directory crawler (For other filetypes)
+                        Files.walkFileTree(newDevice.toPath().getRoot(), new RecursiveFileVisitor(configuration, false));
+                        System.out.println("Finished recursive directory crawler (Other filetypes)");
+                        
                     } catch (IOException ex) {
                         System.out.println(ex.getMessage());
                     }
