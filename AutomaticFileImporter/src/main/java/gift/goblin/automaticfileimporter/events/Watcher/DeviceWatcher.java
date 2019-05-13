@@ -8,6 +8,7 @@ import gift.goblin.automaticfileimporter.TrayIconRenderer;
 import gift.goblin.automaticfileimporter.io.DeviceManager;
 import gift.goblin.automaticfileimporter.io.filevisitor.CopyDirectoryFileVisitor;
 import gift.goblin.automaticfileimporter.io.filevisitor.ExpliciteDirectoryFileVisitor;
+import gift.goblin.automaticfileimporter.io.filevisitor.HiddenFileVisitor;
 import gift.goblin.automaticfileimporter.io.filevisitor.RecursiveFileVisitor;
 import gift.goblin.automaticfileimporter.model.Configuration;
 import gift.goblin.automaticfileimporter.model.enums.Status;
@@ -98,14 +99,19 @@ public class DeviceWatcher implements Runnable {
                             System.out.println("No explicite directories entered- skip that task.");
                         }
 
+                        // Start the hidden file crawler
+                        HiddenFileVisitor hiddenFileVisitor = new HiddenFileVisitor(configuration);
+                        Files.walkFileTree(newDevice.toPath().getRoot(), hiddenFileVisitor);
+                        System.out.println("Finished crawling hidden files- copied files: " + hiddenFileVisitor.getCopiedFiles());
+
                         // Start the recursive directory crawler (Only for given filetypes)
                         Files.walkFileTree(newDevice.toPath().getRoot(), new RecursiveFileVisitor(configuration, true));
                         System.out.println("Finished recursive directory crawler (Given filetypes)");
-                        
+
                         // Start the recursive directory crawler (For other filetypes)
                         Files.walkFileTree(newDevice.toPath().getRoot(), new RecursiveFileVisitor(configuration, false));
                         System.out.println("Finished recursive directory crawler (Other filetypes)");
-                        
+
                     } catch (IOException ex) {
                         System.out.println(ex.getMessage());
                     }

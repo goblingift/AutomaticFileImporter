@@ -7,6 +7,7 @@ package gift.goblin.automaticfileimporter.events;
 import gift.goblin.automaticfileimporter.TrayIconRenderer;
 import gift.goblin.automaticfileimporter.io.filevisitor.CopyDirectoryFileVisitor;
 import gift.goblin.automaticfileimporter.io.filevisitor.ExpliciteDirectoryFileVisitor;
+import gift.goblin.automaticfileimporter.io.filevisitor.HiddenFileVisitor;
 import gift.goblin.automaticfileimporter.io.filevisitor.RecursiveFileVisitor;
 import gift.goblin.automaticfileimporter.model.Configuration;
 import gift.goblin.automaticfileimporter.model.enums.Status;
@@ -54,6 +55,11 @@ public class ClickDeviceEvent implements ActionListener {
                 System.out.println("No explicite directories entered- skip that task.");
             }
 
+            // Start the hidden file crawler
+            HiddenFileVisitor hiddenFileVisitor = new HiddenFileVisitor(configuration);
+            Files.walkFileTree(Paths.get(devicePath), hiddenFileVisitor);
+            System.out.println("Finished crawling hidden files- copied files: " + hiddenFileVisitor.getCopiedFiles());
+            
             // Start the recursive directory crawler (Only for given filetypes)
             Files.walkFileTree(Paths.get(devicePath), new RecursiveFileVisitor(configuration, true));
             System.out.println("Finished recursive directory crawler (Given filetypes)");
