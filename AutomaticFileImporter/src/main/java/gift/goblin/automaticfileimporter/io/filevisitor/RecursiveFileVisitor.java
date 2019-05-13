@@ -28,18 +28,20 @@ public class RecursiveFileVisitor extends SimpleFileVisitor<Path> {
     private static final String SEARCH_STRING = "glob:**{%s}*";
     private static final String SEARCH_STRING_FILETYPE = "glob:*{%s}";
     private static final String SUBDIRECTORY_PATH = "recursive";
+    private static final String SUBDIRECTORY_PATH_OTHER_FILETYPE = "recursive_other_filetypes";
     private final PathMatcher pathMatcher;
     private final PathMatcher fileTypeMatcher;
+    private final boolean onlyGivenFiletypes;
 
-    public RecursiveFileVisitor(Configuration configuration) {
+    public RecursiveFileVisitor(Configuration configuration, boolean onlyGivenFiletypes) {
         this.configuration = configuration;
-        
+        this.onlyGivenFiletypes = onlyGivenFiletypes;
+
         String directoryRegex = configuration.getExcludedDirectories().stream()
                 .collect(Collectors.joining(","));
         String directoryRegexFormatted = String.format(SEARCH_STRING, directoryRegex);
         this.pathMatcher = FileSystems.getDefault().getPathMatcher(directoryRegexFormatted);
-        
-        
+
         String filetypeRegex = configuration.getFileTypes().stream()
                 .collect(Collectors.joining(","));
         String filetypeRegexFormatted = String.format(SEARCH_STRING_FILETYPE, filetypeRegex);
@@ -67,9 +69,13 @@ public class RecursiveFileVisitor extends SimpleFileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        
+
         try {
-            if (fileTypeMatcher.matches(file.getFileName())) {
+            boolean hasMatched = fileTypeMatcher.matches(file.getFileName());
+            
+            if (onlyGivenFiletypes && hasMatched) {
+                copyFile(file);
+            } else if(!onlyGivenFiletypes && !hasMatched) {
                 copyFile(file);
             }
         } catch (Exception e) {
@@ -87,9 +93,15 @@ public class RecursiveFileVisitor extends SimpleFileVisitor<Path> {
     private void copyFile(Path file) {
 
         try {
-            Path targetFile = configuration.getTargetDirectoryPath().resolve(SUBDIRECTORY_PATH).resolve(file.subpath(0, file.getNameCount()));
-            targetFile.toFile().getParentFile().mkdirs();
+            Path targetFile;
+            if (onlyGivenFiletypes) {
+                targetFile = configuration.getTargetDirectoryPath().resolve(SUBDIRECTORY_PATH).resolve(file.subpath(0, file.getNameCount()));
+            } else {
+                targetFile = configuration.getTargetDirectoryPath().resolve(SUBDIRECTORY_PATH_OTHER_FILETYPE).resolve(file.subpath(0, file.getNameCount()));
+            }
             
+            targetFile.toFile().getParentFile().mkdirs();
+
             Files.copy(file, targetFile,
                     StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception ex) {
