@@ -35,7 +35,6 @@ public class MainClass {
         
         List<File> initialDevices = new DeviceManager().getDevices();
         
-        
         // Start the watcher Thread
         new Thread(new DeviceWatcher(trayIconRenderer, initialDevices, configuration)).start();
     }

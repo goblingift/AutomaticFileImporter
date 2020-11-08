@@ -6,6 +6,7 @@ package gift.goblin.automaticfileimporter;
 
 import gift.goblin.automaticfileimporter.events.ClickDeviceEvent;
 import gift.goblin.automaticfileimporter.events.ExitEvent;
+import gift.goblin.automaticfileimporter.events.RefreshDevicesEvent;
 import gift.goblin.automaticfileimporter.io.DeviceManager;
 import gift.goblin.automaticfileimporter.model.Configuration;
 import gift.goblin.automaticfileimporter.model.enums.Status;
@@ -69,6 +70,9 @@ public class TrayIconRenderer {
         renderDevices(devices);
         popup.add(deviceMenu);
         
+        MenuItem refreshItem = new MenuItem("Refresh devices");
+        refreshItem.addActionListener(new RefreshDevicesEvent(this));
+        popup.add(refreshItem);
 
         MenuItem exitItem = new MenuItem("Exit");
         exitItem.addActionListener(new ExitEvent());
